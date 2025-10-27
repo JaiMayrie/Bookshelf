@@ -1,0 +1,42 @@
+def organize_books(tbr_list, goal):
+    print("\nAnnual Reading Goal:", goal)
+    print("Your TBR List in Suggested Reading Order:")
+    max_books_to_show = min(len(tbr_list), goal)  # Show only up to the reading goal, unless user wants all
+    
+    for i, book in enumerate(tbr_list[:max_books_to_show], 1):
+        print(f"{i}. {book}")
+
+def load_books_from_file(filename):
+    try:
+        with open(filename, 'r') as file:
+            books = file.readlines()
+            books = [book.strip() for book in books]  # Remove any extra whitespace
+        return books
+    except FileNotFoundError:
+        print("File not found. Please check the filename and try again.")
+        return []
+
+def main():
+    print("Welcome to the TBR Organizer!")
+    tbr_list = []
+    goal = int(input("How many books do you want to read this year? "))
+    
+    method = input("Would you like to (1) type your book list or (2) import from a file? Enter 1 or 2: ")
+    if method == '1':
+        while True:
+            book = input("Enter a book title (type 'done' when finished): ")
+            if book.lower() == 'done':
+                break
+            tbr_list.append(book)
+    elif method == '2':
+        filename = input("Enter the filename (including .txt extension): ")
+        tbr_list = load_books_from_file(filename)
+    
+    show_full_list = input("Do you want to see the full list or just up to your reading goal? (Type 'full' for full list, or 'goal' for goal limit): ")
+    if show_full_list.lower() == 'full':
+        organize_books(tbr_list, len(tbr_list))  # Show the full list
+    else:
+        organize_books(tbr_list, goal)  # Show only up to the reading goal
+
+if __name__ == "__main__":
+    main()
