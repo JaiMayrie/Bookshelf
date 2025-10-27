@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TBR Book Organizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #333;
+        }
+        nav a {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            text-align: center;
+        }
+        nav a:hover {
+            background-color: #4CAF50;
+        }
+        section {
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            color: white;
+            background-color: #4CAF50;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>TBR Book Organizer</h1>
+    <p>Your ultimate tool for managing reading lists and goals</p>
+</header>
+
+<nav>
+    <a href="#about">About</a>
+    <a href="#features">Features</a>
+    <a href="#contact">Contact</a>
+</nav>
+
+<section id="about">
+    <div class="container">
+        <h2>About the Project</h2>
+        <p>The TBR Book Organizer is a lightweight, offline tool designed to help readers organize their To Be Read (TBR) lists and set annual reading goals. The program ensures simplicity and ease of use, allowing readers to focus on their passion for books.</p>
+        <a class="button" href="#features">Explore Features</a>
+    </div>
+</section>
+
+<section id="features">
+    <div class="container">
+        <h2>Features</h2>
+        <ul>
+            <li>Manually add books or import them from a file.</li>
+            <li>Set and track annual reading goals.</li>
+            <li>Display the full TBR list or prioritize based on the goal.</li>
+            <li>Offline access with robust error handling.</li>
+            <li>Potential for future enhancements like progress tracking and API integration.</li>
+        </ul>
+        <a class="button" href="#contact">Contact Us</a>
+    </div>
+</section>
+
+<section id="contact">
+    <div class="container">
+        <h2>Contact</h2>
+        <p>For more information or to contribute to the project, please reach out to us!</p>
+        <p>Email: <a href="mailto:ncalvin@csu.edu>ncalvin@csu.edu</a></p>
+        <p>GitHub Repository: <a href="https://github.com/JaiMayrie/JaiMayrie/tree/main">View Project</a></p>
+    </div>
+</section>
+
+<footer>
+    <p>&copy; 2024 TBR Book Organizer | Designed by [Your Name]</p>
+</footer>
+
+</body>
+</html>
