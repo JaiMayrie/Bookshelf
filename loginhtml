@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+            width: 320px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #333;
+            color: #ffffff;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 14px;
+            min-height: 18px;
+        }
+
+        .error {
+            color: #b00020;
+        }
+
+        .success {
+            color: #008000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-card">
+            <h1>LOGIN PAGE</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input id="username" type="text" name="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input id="password" type="password" name="password" required>
+                </div>
+
+                <button type="submit">Login</button>
+
+                <div id="message" class="message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Simulated USER_DB dictionary
+        const USER_DB = {
+            "user1": "password123",
+            "admin": "admin123",
+        };
+
+        document.getElementById("loginForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent form from actually submitting
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+            const messageDiv = document.getElementById("message");
+
+            // Clear previous message
+            messageDiv.textContent = "";
+            messageDiv.className = "message";
+
+            // --- Logic matching your Python code ---
+
+            // if username not in USER_DB:
+            if (!USER_DB.hasOwnProperty(username)) {
+                messageDiv.textContent = "Error: User does not exist.";
+                messageDiv.classList.add("error");
+                return false;
+            }
+
+            // if USER_DB[username] != password:
+            if (USER_DB[username] !== password) {
+                messageDiv.textContent = "Error: Incorrect password.";
+                messageDiv.classList.add("error");
+                return false;
+            }
+
+            // Login successful
+            messageDiv.textContent = "Login successful!";
+            messageDiv.classList.add("success");
+
+            // Example: redirect to another page after successful login
+            // window.location.href = "chatPage.html";
+
+            return true;
+        });
+    </script>
+</body>
+</html>

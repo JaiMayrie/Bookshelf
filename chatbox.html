@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Page</title>
+
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .chat-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            padding: 20px 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        #chatlog {
+            border: 1px solid #ccc;
+            background: #fafafa;
+            border-radius: 6px;
+            padding: 15px;
+            height: 450px;
+            overflow-y: auto;
+            font-size: 18px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 14px;
+            border-radius: 6px;
+        }
+
+        .user-msg {
+            background: #dbe7ff;
+            text-align: left;
+        }
+
+        .bot-msg {
+            background: #eee;
+            text-align: left;
+        }
+
+        .chat-input {
+            display: flex;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        #userText {
+            flex: 1;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        button {
+            padding: 12px 22px;
+            font-size: 18px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        button:hover {
+            background: #555;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="chat-container">
+    <h1>Chat with Support</h1>
+
+    <div id="chatlog"></div>
+
+    <div class="chat-input">
+        <input type="text" id="userText" placeholder="Type your message..." required>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    // Send user message to backend
+    function sendMessage() {
+        const text = document.getElementById("userText").value;
+        if (!text.trim()) return;
+
+        appendUserMessage(text);
+        document.getElementById("userText").value = "";
+
+        // POST message to backend Python
+        fetch("/chat/respond", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text })
+        })
+        .then(res => res.json())
+        .then(data => {
+            // data.chatlog should be list of {text, author, timestamp}
+            const lastMessage = data.chatlog[data.chatlog.length - 1];
+            appendBotMessage(lastMessage.text);
+        });
+    }
+
+    function appendUserMessage(text) {
+        const chatlog = document.getElementById("chatlog");
+        const msg = document.createElement("div");
+        msg.className = "message user-msg";
+        msg.innerText = text;
+        chatlog.appendChild(msg);
+        chatlog.scrollTop = chatlog.scrollHeight;
+    }
+
+    function appendBotMessage(text) {
+        const chatlog = document.getElementById("chatlog");
+        const msg = document.createElement("div");
+        msg.className = "message bot-msg";
+        msg.innerText = text;
+        chatlog.appendChild(msg);
+        chatlog.scrollTop = chatlog.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
