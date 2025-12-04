@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Book - Book Organizer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  
+  <nav>
+    <a href="home.html">Home</a>
+    <a href="browse.html">Browse</a>
+    <a href="upload.html">Add Book</a>
+    <a href="bookshelf.html">My Bookshelf</a>
+    <a href="login.html">Login</a>
+  </nav>
+
+  <main>
+    <h1>Add a New Book</h1>
+
+    <form id="upload-form">
+      <label for="book-file">Book File</label>
+      <input type="file" id="book-file" name="bookFile" accept=".pdf,.epub,.txt">
+
+      <label for="book-title">Title</label>
+      <input type="text" id="book-title" name="title" required>
+
+      <label for="book-author">Author</label>
+      <input type="text" id="book-author" name="author" required>
+
+      <label for="book-genre">Genre</label>
+      <select id="book-genre" name="genre">
+        <option value="">Select Genre</option>
+        <option>Fantasy</option>
+        <option>Romance</option>
+        <option>Mystery</option>
+        <option>Non-Fiction</option>
+        <!-- etc -->
+      </select>
+
+      <label for="book-keywords">Keywords</label>
+      <input type="text" id="book-keywords" name="keywords" placeholder="Comma-separated">
+
+      <button type="submit">Upload Book</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Book Organizer</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

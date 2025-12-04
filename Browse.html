@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Browse Books - Book Organizer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+ 
+  <nav>
+    <a href="home.html">Home</a>
+    <a href="browse.html">Browse</a>
+    <a href="upload.html">Add Book</a>
+    <a href="bookshelf.html">My Bookshelf</a>
+    <a href="login.html">Login</a>
+  </nav>
+
+  <main>
+    <h1>Browse Books</h1>
+
+    <!-- Search / Filter Section -->
+    <section>
+      <form id="search-form">
+        <label for="search-keyword">Keyword</label>
+        <input type="text" id="search-keyword" name="keyword" placeholder="Title, author, or keywords">
+
+        <label for="search-genre">Genre</label>
+        <select id="search-genre" name="genre">
+          <option value="">Any</option>
+          <option>Fantasy</option>
+          <option>Romance</option>
+          <option>Mystery</option>
+          <option>Non-Fiction</option>
+          <!-- add more as needed -->
+        </select>
+
+        <label for="search-author">Author</label>
+        <input type="text" id="search-author" name="author">
+
+        <button type="submit">Search</button>
+      </form>
+    </section>
+
+    <!-- Results Table / List -->
+    <section>
+      <h2>Results</h2>
+      <table id="results-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Genre</th>
+            <th>Keywords</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- JS will insert <tr> rows here -->
+          <!-- Example static row: -->
+          <!--
+          <tr>
+            <td><a href="book.html">Example Book</a></td>
+            <td>Sample Author</td>
+            <td>Fantasy</td>
+            <td>magic, dragons</td>
+            <td><button>Add to Bookshelf</button></td>
+          </tr>
+          -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Book Organizer</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
