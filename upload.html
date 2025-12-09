@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Book - Book Organizer</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -18,7 +19,7 @@
   <main>
     <h1>Add a New Book</h1>
 
-    <form id="upload-form">
+    <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
       <label for="book-file">Book File</label>
       <input type="file" id="book-file" name="bookFile" accept=".pdf,.epub,.txt">
 
