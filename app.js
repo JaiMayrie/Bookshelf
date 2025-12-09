@@ -67,20 +67,32 @@ if (uploadForm) {
 
 // Display books on browse page
 const bookList = document.getElementById('book-list');
-if (bookList) {
-  const books = getBooks();
+const noResults = document.getElementById('no-results');
+const resultsCount = document.getElementById('results-count');
+
+function displayBooks(books) {
+  if (!bookList) return;
+  
   if (books.length === 0) {
-    bookList.innerHTML = '<p>No books found. <a href="upload.html">Add some books</a>.</p>';
+    bookList.innerHTML = '';
+    if (noResults) noResults.style.display = 'block';
+    if (resultsCount) resultsCount.textContent = '';
   } else {
+    if (noResults) noResults.style.display = 'none';
+    if (resultsCount) resultsCount.textContent = `${books.length} book${books.length !== 1 ? 's' : ''} found`;
     bookList.innerHTML = books.map(book => `
       <div class="book-item">
         <h3>${book.title}</h3>
         <p><strong>Author:</strong> ${book.author}</p>
-        <p><strong>Genre:</strong> ${book.genre}</p>
+        <span class="genre-tag">${book.genre}</span>
         <p>${book.description || ''}</p>
       </div>
     `).join('');
   }
+}
+
+if (bookList) {
+  displayBooks(getBooks());
 }
 
 // Display bookshelf
@@ -109,32 +121,42 @@ function removeBook(id) {
   location.reload();
 }
 
-// Search functionality
-const searchInput = document.getElementById('search-input');
-if (searchInput) {
-  searchInput.addEventListener('input', function(e) {
-    const query = e.target.value.toLowerCase();
-    const books = getBooks();
-    const filtered = books.filter(book => 
-      book.title.toLowerCase().includes(query) ||
-      book.author.toLowerCase().includes(query) ||
-      book.genre.toLowerCase().includes(query)
-    );
+// Search form functionality for browse page
+const searchForm = document.getElementById('search-form');
+if (searchForm) {
+  searchForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const keyword = document.getElementById('search-keyword').value.toLowerCase();
+    const genre = document.getElementById('search-genre').value;
     
-    const bookList = document.getElementById('book-list');
-    if (bookList) {
-      if (filtered.length === 0) {
-        bookList.innerHTML = '<p>No books match your search.</p>';
-      } else {
-        bookList.innerHTML = filtered.map(book => `
-          <div class="book-item">
-            <h3>${book.title}</h3>
-            <p><strong>Author:</strong> ${book.author}</p>
-            <p><strong>Genre:</strong> ${book.genre}</p>
-            <p>${book.description || ''}</p>
-          </div>
-        `).join('');
-      }
-    }
+    const books = getBooks();
+    const filtered = books.filter(book => {
+      const matchesKeyword = !keyword || 
+        book.title.toLowerCase().includes(keyword) ||
+        book.author.toLowerCase().includes(keyword) ||
+        (book.description && book.description.toLowerCase().includes(keyword));
+      
+      const matchesGenre = !genre || book.genre === genre;
+      
+      return matchesKeyword && matchesGenre;
+    });
+    
+    displayBooks(filtered);
   });
+  
+  // Live search as user types
+  const searchKeyword = document.getElementById('search-keyword');
+  const searchGenre = document.getElementById('search-genre');
+  
+  if (searchKeyword) {
+    searchKeyword.addEventListener('input', function() {
+      searchForm.dispatchEvent(new Event('submit'));
+    });
+  }
+  
+  if (searchGenre) {
+    searchGenre.addEventListener('change', function() {
+      searchForm.dispatchEvent(new Event('submit'));
+    });
+  }
 }

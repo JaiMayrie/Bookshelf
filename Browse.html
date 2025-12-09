@@ -9,7 +9,7 @@
  
   <nav>
     <a href="home.html">Home</a>
-    <a href="browse.html">Browse</a>
+    <a href="Browse.html">Browse</a>
     <a href="upload.html">Add Book</a>
     <a href="bookshelf.html">My Bookshelf</a>
     <a href="login.html">Login</a>
@@ -18,56 +18,50 @@
   <main>
     <h1>Browse Books</h1>
 
-    <!-- Search / Filter Section -->
-    <section>
-      <form id="search-form">
-        <label for="search-keyword">Keyword</label>
-        <input type="text" id="search-keyword" name="keyword" placeholder="Title, author, or keywords">
+    <section class="search-section">
+      <form id="search-form" class="search-form">
+        <div class="search-row">
+          <div class="search-field">
+            <label for="search-keyword">Search</label>
+            <input type="text" id="search-keyword" name="keyword" placeholder="Title, author, or keywords">
+          </div>
 
-        <label for="search-genre">Genre</label>
-        <select id="search-genre" name="genre">
-          <option value="">Any</option>
-          <option>Fantasy</option>
-          <option>Romance</option>
-          <option>Mystery</option>
-          <option>Non-Fiction</option>
-          <!-- add more as needed -->
-        </select>
+          <div class="search-field">
+            <label for="search-genre">Genre</label>
+            <select id="search-genre" name="genre">
+              <option value="">All Genres</option>
+              <option value="Fantasy">Fantasy</option>
+              <option value="Romance">Romance</option>
+              <option value="Mystery">Mystery</option>
+              <option value="Science Fiction">Science Fiction</option>
+              <option value="Non-Fiction">Non-Fiction</option>
+              <option value="Biography">Biography</option>
+              <option value="Thriller">Thriller</option>
+              <option value="Horror">Horror</option>
+              <option value="Historical">Historical</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
 
-        <label for="search-author">Author</label>
-        <input type="text" id="search-author" name="author">
-
-        <button type="submit">Search</button>
+          <div class="search-field">
+            <label>&nbsp;</label>
+            <button type="submit" class="search-btn">Search</button>
+          </div>
+        </div>
       </form>
     </section>
 
-    <!-- Results Table / List -->
-    <section>
-      <h2>Results</h2>
-      <table id="results-table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Genre</th>
-            <th>Keywords</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- JS will insert <tr> rows here -->
-          <!-- Example static row: -->
-          <!--
-          <tr>
-            <td><a href="book.html">Example Book</a></td>
-            <td>Sample Author</td>
-            <td>Fantasy</td>
-            <td>magic, dragons</td>
-            <td><button>Add to Bookshelf</button></td>
-          </tr>
-          -->
-        </tbody>
-      </table>
+    <section class="results-section">
+      <div class="results-header">
+        <h2>Results</h2>
+        <p id="results-count"></p>
+      </div>
+
+      <div id="no-results" class="no-results" style="display: none;">
+        <p>No books found. Try a different search or <a href="upload.html">add a new book</a>.</p>
+      </div>
+
+      <div id="book-list" class="book-grid"></div>
     </section>
   </main>
 
