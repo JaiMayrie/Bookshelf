@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book Details - Book Organizer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  
+  <nav>
+    <a href="home.html">Home</a>
+    <a href="browse.html">Browse</a>
+    <a href="upload.html">Add Book</a>
+    <a href="bookshelf.html">My Bookshelf</a>
+    <a href="login.html">Login</a>
+  </nav>
+
+  <main>
+    <h1 id="book-title-display">Book Title</h1>
+
+    <section class="book-details">
+      <!-- Optional cover image -->
+      <div class="book-cover">
+        <!-- <img src="cover-placeholder.jpg" alt="Book Cover"> -->
+      </div>
+
+      <div class="book-meta">
+        <p><strong>Author:</strong> <span id="book-author-display">Author Name</span></p>
+        <p><strong>Genre:</strong> <span id="book-genre-display">Genre</span></p>
+        <p><strong>Keywords:</strong> <span id="book-keywords-display">keyword1, keyword2</span></p>
+        <p><strong>Description / Notes:</strong></p>
+        <p id="book-description-display">
+          <!--This is where a brief description of the book will appear.> -->
+        </p>
+
+        <button id="add-to-bookshelf-btn">Add to Bookshelf</button>
+        <button id="remove-from-bookshelf-btn">Remove from Bookshelf</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Book Organizer</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
