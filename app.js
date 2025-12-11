@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
       list.forEach(b => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><a href="book.html?id=${encodeURIComponent(b.id)}">${escapeHtml(b.title || '')}</a></td>
+          <td><a href="book.html?id=${encodeURIComponent(b.id)}" class="title-link" data-id="${b.id}" data-file="${escapeHtml(b.file_path || '')}">${escapeHtml(b.title || '')}</a></td>
           <td>${escapeHtml(b.author || '')}</td>
           <td>${escapeHtml(b.genre || '')}</td>
           <td>${escapeHtml((b.keywords || []).join(', '))}</td>
@@ -71,21 +71,79 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
+    // delegated handler for title link clicks: toggle inline preview row
+    resultsTable.addEventListener('click', (ev) => {
+      const a = ev.target.closest && ev.target.closest('.title-link');
+      if (!a) return;
+      ev.preventDefault();
+      const id = a.getAttribute('data-id');
+      const filePath = (a.getAttribute('data-file') || '').replace(/\\/g, '/');
+      const tr = a.closest('tr');
+      if (!tr) return;
+      const next = tr.nextElementSibling;
+      if (next && next.dataset && next.dataset.detailFor === id) {
+        // hide
+        next.remove();
+        return;
+      }
+      // remove any existing detail rows
+      const existing = resultsTable.querySelector('tr[data-detail-for]');
+      if (existing) existing.remove();
+
+      const detail = document.createElement('tr');
+      detail.dataset.detailFor = id;
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.style.padding = '0.5rem';
+      // create preview container
+      const preview = document.createElement('div');
+      preview.style.width = '100%';
+      preview.style.background = '#fff';
+      preview.style.padding = '0.5rem';
+      preview.style.border = '1px solid #ddd';
+      preview.style.borderRadius = '4px';
+      // try to render first pages using PDF.js if available
+      const url = filePath ? (filePath.startsWith('/') ? filePath : '/' + filePath) : null;
+      if (url && window.pdfjsLib) {
+        renderFirstPages(url, 3, preview);
+      } else if (url) {
+        const iframe = document.createElement('iframe');
+        iframe.src = url + '#page=1';
+        iframe.style.width = '100%';
+        iframe.style.height = '400px';
+        iframe.style.border = '1px solid #ccc';
+        preview.appendChild(iframe);
+      } else {
+        preview.textContent = 'Preview unavailable';
+      }
+
+      td.appendChild(preview);
+      detail.appendChild(td);
+      // insert after the current row
+      tr.parentNode.insertBefore(detail, tr.nextSibling);
+    });
+
     // wire search form (if present) to query the API and re-render
     const searchForm = document.getElementById('search-form');
     if (searchForm) {
       searchForm.addEventListener('submit', (ev) => {
-        ev.preventDefault();
-        const form = ev.target;
-        const keyword = (form.querySelector('[name="keyword"]') || {value:''}).value.trim();
-        const genre = (form.querySelector('[name="genre"]') || {value:''}).value.trim();
-        const author = (form.querySelector('[name="author"]') || {value:''}).value.trim();
-        const params = new URLSearchParams();
-        if (keyword) params.set('keyword', keyword);
-        if (genre) params.set('genre', genre);
-        if (author) params.set('author', author);
-        fetchAndRender('?' + params.toString());
-      });
+          ev.preventDefault();
+          const form = ev.target;
+          const title = (form.querySelector('[name="title"]') || {value:''}).value.trim();
+          const author = (form.querySelector('[name="author"]') || {value:''}).value.trim();
+          const keywords = (form.querySelector('[name="keywords"]') || {value:''}).value.trim();
+          const genre = (form.querySelector('[name="genre"]') || {value:''}).value.trim();
+
+          const params = new URLSearchParams();
+          // server expects `keyword` (or `keywords`) for token scoring; combine title+keywords
+          let kwParam = '';
+          if (title) kwParam = title;
+          if (keywords) kwParam = kwParam ? (kwParam + ' ' + keywords) : keywords;
+          if (kwParam) params.set('keyword', kwParam);
+          if (genre) params.set('genre', genre);
+          if (author) params.set('author', author);
+          fetchAndRender('?' + params.toString());
+        });
     }
   }
 

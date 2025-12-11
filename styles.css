@@ -263,3 +263,25 @@ footer {
   font-size: 0.8rem;
   margin-top: 0.5rem;
 }
+
+/* Book detail viewer styles (extracted from book.html inline styles) */
+.book-viewer {
+  margin-bottom: 1rem;
+}
+
+#pdf-viewer {
+  width: 100%;
+  height: 800px;
+  border: 1px solid #ccc;
+  display: none;
+}
+
+#pdf-canvas-container {
+  width: 100%;
+}
+
+#limited-note {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 0.5rem;
+}
