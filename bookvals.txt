@@ -1,0 +1,1 @@
+{"id": "d4a2ecf4-daf4-4c0f-a35c-e1999623e142", "filename": "Interstitial 2E.pdf", "file_path": "books\\Interstitial 2E.pdf", "title": "Interstitial", "author": "IDK", "genre": "Fantasy", "keywords": ["Cool Game", "TTRPG"], "uploader": "anonymous", "timestamp": "2025-12-11T15:20:27.430637Z"}
