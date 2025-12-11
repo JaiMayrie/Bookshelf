@@ -285,3 +285,41 @@ footer {
   color: #666;
   margin-top: 0.5rem;
 }
+
+/* Results table styling moved from Browse.html */
+#results-table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+}
+
+#results-table th,
+#results-table td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+#results-table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+/* inline preview detail row */
+tr[data-detail-for] td {
+  padding: 0;
+}
+
+tr[data-detail-for] .preview {
+  width: 100%;
+  background: #fff;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.title-link {
+  cursor: pointer;
+  color: #5d4037;
+  text-decoration: none;
+}
+.title-link:hover { text-decoration: underline; }
