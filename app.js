@@ -6,6 +6,77 @@ async function fetchJSON(path) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Login form: validate and submit with inline error display
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const username = loginForm.querySelector('#login-username').value.trim();
+      const password = loginForm.querySelector('#login-password').value.trim();
+      const errorDiv = document.getElementById('login-error');
+
+      if (!username || !password) {
+        errorDiv.textContent = 'Username and password are required.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      const fd = new FormData(loginForm);
+      fetch('/login', { method: 'POST', body: fd })
+        .then(r => {
+          if (r.redirected) {
+            window.location = r.url;
+            return;
+          }
+          if (!r.ok) return r.text().then(msg => { throw new Error(msg); });
+          return r.text().then(() => { window.location = '/home.html'; });
+        })
+        .catch(err => {
+          errorDiv.textContent = err.message || 'Login failed. Please try again.';
+          errorDiv.style.display = 'block';
+        });
+    });
+  }
+
+  // Register form: validate and submit with inline error display
+  const registerForm = document.getElementById('register-form');
+  if (registerForm) {
+    registerForm.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const username = registerForm.querySelector('#reg-username').value.trim();
+      const password = registerForm.querySelector('#reg-password').value.trim();
+      const confirmPassword = registerForm.querySelector('#reg-confirm-password').value.trim();
+      const errorDiv = document.getElementById('register-error');
+
+      if (!username || !password || !confirmPassword) {
+        errorDiv.textContent = 'All fields are required.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        errorDiv.textContent = 'Passwords do not match.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      const fd = new FormData(registerForm);
+      fetch('/register', { method: 'POST', body: fd })
+        .then(r => {
+          if (r.redirected) {
+            window.location = r.url;
+            return;
+          }
+          if (!r.ok) return r.text().then(msg => { throw new Error(msg); });
+          return r.text().then(() => { window.location = '/home.html'; });
+        })
+        .catch(err => {
+          errorDiv.textContent = err.message || 'Registration failed. Please try again.';
+          errorDiv.style.display = 'block';
+        });
+    });
+  }
+
   // Browse page: populate results table if present
   const resultsTable = document.getElementById('results-table');
   if (resultsTable) {
@@ -69,58 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.disabled = false;
         btn.textContent = 'Add';
       });
-    });
-
-    // delegated handler for title link clicks: toggle inline preview row
-    resultsTable.addEventListener('click', (ev) => {
-      const a = ev.target.closest && ev.target.closest('.title-link');
-      if (!a) return;
-      ev.preventDefault();
-      const id = a.getAttribute('data-id');
-      const filePath = (a.getAttribute('data-file') || '').replace(/\\/g, '/');
-      const tr = a.closest('tr');
-      if (!tr) return;
-      const next = tr.nextElementSibling;
-      if (next && next.dataset && next.dataset.detailFor === id) {
-        // hide
-        next.remove();
-        return;
-      }
-      // remove any existing detail rows
-      const existing = resultsTable.querySelector('tr[data-detail-for]');
-      if (existing) existing.remove();
-
-      const detail = document.createElement('tr');
-      detail.dataset.detailFor = id;
-      const td = document.createElement('td');
-      td.colSpan = 5;
-      td.style.padding = '0.5rem';
-      // create preview container
-      const preview = document.createElement('div');
-      preview.style.width = '100%';
-      preview.style.background = '#fff';
-      preview.style.padding = '0.5rem';
-      preview.style.border = '1px solid #ddd';
-      preview.style.borderRadius = '4px';
-      // try to render first pages using PDF.js if available
-      const url = filePath ? (filePath.startsWith('/') ? filePath : '/' + filePath) : null;
-      if (url && window.pdfjsLib) {
-        renderFirstPages(url, 3, preview);
-      } else if (url) {
-        const iframe = document.createElement('iframe');
-        iframe.src = url + '#page=1';
-        iframe.style.width = '100%';
-        iframe.style.height = '400px';
-        iframe.style.border = '1px solid #ccc';
-        preview.appendChild(iframe);
-      } else {
-        preview.textContent = 'Preview unavailable';
-      }
-
-      td.appendChild(preview);
-      detail.appendChild(td);
-      // insert after the current row
-      tr.parentNode.insertBefore(detail, tr.nextSibling);
     });
 
     // wire search form (if present) to query the API and re-render
