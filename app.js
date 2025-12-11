@@ -9,13 +9,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Browse page: populate results table if present
   const resultsTable = document.getElementById('results-table');
   if (resultsTable) {
-    fetchJSON('/api/books').then(list => {
-      const tbody = resultsTable.querySelector('tbody');
+    const tbody = resultsTable.querySelector('tbody');
+    function renderBooksList(list) {
       tbody.innerHTML = '';
+      if (!list || !list.length) {
+        tbody.innerHTML = '<tr><td colspan="5">No books available.</td></tr>';
+        return;
+      }
       list.forEach(b => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><a href="book.html?id=${b.id}">${escapeHtml(b.title || '')}</a></td>
+          <td><a href="book.html?id=${encodeURIComponent(b.id)}">${escapeHtml(b.title || '')}</a></td>
           <td>${escapeHtml(b.author || '')}</td>
           <td>${escapeHtml(b.genre || '')}</td>
           <td>${escapeHtml((b.keywords || []).join(', '))}</td>
@@ -23,7 +27,66 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         tbody.appendChild(tr);
       });
-    }).catch(err => console.error(err));
+    }
+
+    // initial load
+    tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+    function fetchAndRender(query) {
+      const path = query ? '/api/books' + (query.startsWith('?') ? query : ('?' + query)) : '/api/books';
+      console.log('[Browse] fetchAndRender called with path:', path);
+      fetch(path)
+        .then(res => {
+          console.log('[Browse] Fetch response status:', res.status);
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(list => {
+          console.log('[Browse] Received list from API:', list, 'Length:', list ? list.length : 'null');
+          renderBooksList(list);
+        })
+        .catch(err => {
+          console.error('[Browse] Error fetching books:', err);
+          tbody.innerHTML = '<tr><td colspan="5">Error loading books: ' + err.message + '</td></tr>';
+        });
+    }
+    console.log('[Browse] Page loaded, table element found, calling fetchAndRender');
+    fetchAndRender('');
+
+    // delegated handler for Add buttons
+    resultsTable.addEventListener('click', (ev) => {
+      const btn = ev.target.closest && ev.target.closest('.add-btn');
+      if (!btn) return;
+      const bookId = btn.getAttribute('data-id');
+      if (!bookId) return;
+      btn.disabled = true;
+      const fd = new FormData(); fd.append('book_id', bookId);
+      fetch('/api/bookshelf/add', { method: 'POST', body: fd }).then(r => r.json()).then(() => {
+        btn.textContent = 'Added';
+      }).catch(e => {
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = 'Add';
+      });
+    });
+
+    // wire search form (if present) to query the API and re-render
+    const searchForm = document.getElementById('search-form');
+    if (searchForm) {
+      searchForm.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        const form = ev.target;
+        const keyword = (form.querySelector('[name="keyword"]') || {value:''}).value.trim();
+        const genre = (form.querySelector('[name="genre"]') || {value:''}).value.trim();
+        const author = (form.querySelector('[name="author"]') || {value:''}).value.trim();
+        const params = new URLSearchParams();
+        if (keyword) params.set('keyword', keyword);
+        if (genre) params.set('genre', genre);
+        if (author) params.set('author', author);
+        fetchAndRender('?' + params.toString());
+      });
+    }
   }
 
   // Book page: fetch book by id in querystring

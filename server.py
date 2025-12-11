@@ -1,6 +1,8 @@
 from flask import Flask, request, send_from_directory, redirect, url_for, jsonify, session
+from functools import wraps
 import os
 import json
+import re
 
 from book_logic import uploader as UploaderClass, bookshelf as BookshelfClass
 
@@ -8,6 +10,16 @@ BASE_DIR = os.path.dirname(__file__)
 
 app = Flask(__name__)
 app.secret_key = 'dev-secret-change-me'
+
+
+def login_required(f):
+    """Decorator to require login. Redirects to login.html if not authenticated."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('username'):
+            return redirect(url_for('login_page'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 def send_page(name):
@@ -20,22 +32,26 @@ def index():
 
 
 @app.route('/home.html')
+@login_required
 def home_page():
     return send_page('home.html')
 
 
 @app.route('/browse.html')
+@login_required
 def browse_page():
     # serve the client-side browse page (static)
     return send_page('browse.html')
 
 
 @app.route('/book.html')
+@login_required
 def book_page():
     return send_page('book.html')
 
 
 @app.route('/upload.html')
+@login_required
 def upload_page():
     return send_page('upload.html')
 
@@ -51,6 +67,7 @@ def register_page():
 
 
 @app.route('/bookshelf.html')
+@login_required
 def bookshelf_page():
     return send_page('bookshelf.html')
 
@@ -58,6 +75,16 @@ def bookshelf_page():
 @app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory(BASE_DIR, filename)
+
+
+@app.route('/styles.css')
+def styles():
+    return send_from_directory(BASE_DIR, 'styles.css')
+
+
+@app.route('/app.js')
+def appjs():
+    return send_from_directory(BASE_DIR, 'app.js')
 
 
 @app.route('/books/<path:filename>')
@@ -68,6 +95,7 @@ def books_files(filename):
 
 
 @app.route('/upload', methods=['POST'])
+@login_required
 def handle_upload():
     # simple upload handler that uses book_logic.uploader
     f = request.files.get('bookFile')
@@ -82,8 +110,9 @@ def handle_upload():
     username = session.get('username') or request.form.get('username') or 'anonymous'
 
     uploader = UploaderClass(username, '', '')
-    # pass the FileStorage.stream and filename
-    entry = uploader.upload_book(f.stream, f.filename, title, author, genre, keywords)
+    # read file bytes from the FileStorage to avoid stream access issues
+    file_bytes = f.read()
+    entry = uploader.upload_book(file_bytes, f.filename, title, author, genre, keywords)
 
     # redirect to bookshelf page after successful upload
     return redirect(url_for('bookshelf_page'))
@@ -93,9 +122,23 @@ def handle_upload():
 def handle_login():
     username = request.form.get('username')
     password = request.form.get('password')
-    # NOTE: this is a minimal placeholder; implement real auth as needed
     if not username or not password:
         return 'username and password required', 400
+
+    # Load credentials from logininfo.txt
+    login_path = os.path.join(BASE_DIR, 'logininfo.txt')
+    users = {}
+    if os.path.exists(login_path):
+        try:
+            with open(login_path, 'r', encoding='utf-8') as f:
+                users = json.load(f)
+        except Exception:
+            users = {}
+
+    # Check if username exists and password matches
+    if username not in users or users[username].get('password') != password:
+        return 'Invalid username or password', 401
+
     session['username'] = username
     return redirect(url_for('home_page'))
 
@@ -129,10 +172,99 @@ def handle_register():
 
 @app.route('/api/books', methods=['GET'])
 def api_books():
+    # Support optional search parameters. If none provided, return all books.
+    # `keyword` may contain one or more tokens (comma or space separated).
+    keyword_raw = request.args.get('keyword', '') or request.args.get('keywords', '')
+    keyword_raw = keyword_raw.strip().lower()
+    genre_q = request.args.get('genre', '').strip().lower()
+    author_q = request.args.get('author', '').strip().lower()
+
+    # tokenize keywords into distinct tokens
+    kw_tokens = []
+    if keyword_raw:
+        # split on commas or whitespace
+        kw_tokens = [t for t in re.split('[,\s]+', keyword_raw) if t]
+
     shelf = BookshelfClass()
     shelf.instantiate()
+    books = shelf.list_books()
+
+    results = []
+
+    # If author_q or genre_q provided, filter by them.
+    # - If both provided: both must match (AND)
+    # - If only one provided: only that one must match
+    if author_q or genre_q:
+        for b in books:
+            try:
+                author_match = True
+                genre_match = True
+                if author_q:
+                    author_match = author_q in (b.author or '').lower()
+                if genre_q:
+                    genre_match = genre_q in (b.genre or '').lower()
+                # if both provided, require both; if only one provided, require that one
+                match = True
+                if author_q and genre_q:
+                    match = author_match and genre_match
+                else:
+                    match = (author_q and author_match) or (genre_q and genre_match)
+            except Exception:
+                match = False
+            if match:
+                results.append((b, 0))
+        # If keywords provided, compute keyword scores for the filtered results and sort
+        if kw_tokens:
+            scored = []
+            for b, _ in results:
+                try:
+                    cnt = 0
+                    title_l = (b.title or '').lower()
+                    author_l = (b.author or '').lower()
+                    kws = [str(x).lower() for x in (b.keywords or [])]
+                    for tok in kw_tokens:
+                        if tok in title_l or tok in author_l:
+                            cnt += 1
+                            continue
+                        for kw in kws:
+                            if tok in kw:
+                                cnt += 1
+                                break
+                    scored.append((b, cnt))
+                except Exception:
+                    scored.append((b, 0))
+            # sort by count descending
+            scored.sort(key=lambda it: it[1], reverse=True)
+            results = scored
+    elif kw_tokens:
+        # Keyword scoring: count how many distinct tokens match title/author/keywords
+        for b in books:
+            try:
+                cnt = 0
+                title_l = (b.title or '').lower()
+                author_l = (b.author or '').lower()
+                kws = [str(x).lower() for x in (b.keywords or [])]
+                for tok in kw_tokens:
+                    if tok in title_l or tok in author_l:
+                        cnt += 1
+                        continue
+                    for kw in kws:
+                        if tok in kw:
+                            cnt += 1
+                            break
+                if cnt > 0:
+                    results.append((b, cnt))
+            except Exception:
+                continue
+        # sort by count descending
+        results.sort(key=lambda it: it[1], reverse=True)
+    else:
+        # no filters: include all
+        for b in books:
+            results.append((b, 0))
+
     out = []
-    for b in shelf.list_books():
+    for b, score in results:
         out.append({
             'id': b.id,
             'title': b.title,
@@ -142,6 +274,7 @@ def api_books():
             'file_path': b.file_path,
             'uploader': b.uploader,
             'timestamp': b.timestamp,
+            'score': score,
         })
     return jsonify(out)
 

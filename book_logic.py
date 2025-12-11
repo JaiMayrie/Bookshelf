@@ -71,7 +71,8 @@ class uploader(user):
         entry = {
             'id': str(uuid.uuid4()),
             'filename': os.path.basename(dest_path),
-            'file_path': os.path.join('books', os.path.basename(dest_path)),
+            # store web-friendly path with forward slashes
+            'file_path': 'books/' + os.path.basename(dest_path),
             'title': title,
             'author': author,
             'genre': genre,
@@ -130,12 +131,14 @@ class bookshelf:
                 if isinstance(kws, str):
                     kws = [k.strip() for k in kws.split(',') if k.strip()]
 
-                # determine file_path
+                # determine file_path and normalize separators to forward slashes
                 file_path = entry.get('file_path')
-                if not file_path:
+                if file_path:
+                    file_path = file_path.replace('\\', '/')
+                else:
                     fname = entry.get('filename')
                     if fname:
-                        file_path = os.path.join('books', fname)
+                        file_path = 'books/' + fname
 
                 b = book(
                     title=entry.get('title'),
